@@ -4,18 +4,30 @@ import numpy as np
 from pmdarima import auto_arima
 from sklearn.metrics import mean_squared_error
 
-def make_arima_data(upto_data, data):
-    train_data = data[:upto_data]
-    test_data = data[upto_data:]
-    return train_data, test_data
+# Function to make the data compatible with ARIMA
+data = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+print(data.columns)
+
+def implement_arima_df(period, start_p=0, start_q=0, max_p=5, max_q=5):
+  model = auto_arima(data['reading'], start_p=start_p, start_q=start_q, max_p=max_p, max_q=max_q, seasonal=False, stepwise=True)
+  predictions = model.predict(n_periods=period)
+
+  # Create next_values DataFrame with timestamps
+  next_values = pd.DataFrame(index=pd.date_range(start=data['Glucose_time'].iloc[-1], periods=period+1, freq='5min')[1:], columns=['Glucose_time', 'reading'])
+  next_values['Glucose_time'] = next_values.index
+
+  # Assign predictions to 'reading' column
+  next_values['reading'] = predictions.values
+  next_values.reset_index(drop=True, inplace=True)
+
+  return next_values
 
 
-def implement_arima(train_data, period, start_p=0, start_q=0, max_p=5, max_q=5):
-    model = auto_arima(train_data, start_p=start_p, start_q=start_q, max_p=max_p, max_q=max_q, seasonal=False, stepwise=True)
-    predictions = model.predict(n_periods=period)
-    return predictions
-
-
-def get_arima_mse(test_data, predictions):
+def get_arima_rmse(test_data, predictions):
     mse = mean_squared_error(test_data, predictions)
-    return mse
+    rmse = np.sqrt(mse)
+    return rmse
+
+# Get the predictions using ARIMA
+predictions_df = implement_arima_df(3)
+print(predictions_df)

@@ -13,10 +13,11 @@ def adftest():
     p_value = adftest[1]
     if p_value < 0.05:
         print("With ADF Test, we conclude that the data is stationary")
+        return True
 
     else:
         print("With ADF Test, we conclude that the data is not stationary")
-
+        return False
 
 def kpsstest():
 
@@ -26,9 +27,11 @@ def kpsstest():
     p_value = kpss_test[1]
     if p_value < 0.05:
         print("With KPSS Test, we conclude that the data is not stationary")
+        return False
 
     else:
         print("With KPSS Test, we conclude that the data is stationary")
+        return True
 
 adftest()
 

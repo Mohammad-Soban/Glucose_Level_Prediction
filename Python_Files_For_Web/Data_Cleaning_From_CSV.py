@@ -26,6 +26,7 @@ def cleaning_csv_file():
     file_path_resampled[-1] = file_path_resampled[-1].replace(".csv", "_resampled.csv")
     file_path_resampled = "/".join(file_path_resampled)
     
+    # Saving the dataframe to the new csv file
     df.to_csv(file_path_resampled, index=True)
     return df
 

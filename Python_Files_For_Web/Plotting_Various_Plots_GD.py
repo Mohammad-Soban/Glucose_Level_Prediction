@@ -8,7 +8,7 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
 def plot_line_R_T(df, title, xlabel, ylabel):
     '''Plotting the line plot for the Glucose Reading vs Time'''
-    plt.figsize(16, 10)
+    plt.figure(figsize=(16, 10))
     sns.lineplot(x='Glucose_time', y='reading', data=df, color='blue')
     plt.title(title)
     plt.xlabel(xlabel)
@@ -19,7 +19,7 @@ def plot_line_R_T(df, title, xlabel, ylabel):
 
 def plot_scatter_R_T(df, title, xlabel, ylabel):
     ''' Plotting the scatter plot for the Glucose Reading vs Time '''
-    plt.figsize(16, 10)
+    plt.figure(figsize=(16, 10))
     sns.scatterplot(x='Glucose_time', y='reading', data=df, color='blue')
     plt.title(title)
     plt.xlabel(xlabel)
@@ -53,7 +53,7 @@ def plot_6_lag_plots(df):
     plt.show()
 
 
-def plot_acf(df, xlabel, ylabel):
+def plot_acf_df(df, xlabel, ylabel):
     '''Plotting the Auto Correlation Plot for the Glucose Reading data.'''
     plt.figure(figsize=(16, 8))
     plot_acf(df['reading'], lags=50)
@@ -64,7 +64,7 @@ def plot_acf(df, xlabel, ylabel):
     plt.show()
 
 
-def plot_pacf(df, xlabel, ylabel):
+def plot_pacf_df(df, xlabel, ylabel):
     plt.figure(figsize=(16, 8))
     plot_pacf(df['reading'], lags=50)
     plt.xlabel(xlabel)
