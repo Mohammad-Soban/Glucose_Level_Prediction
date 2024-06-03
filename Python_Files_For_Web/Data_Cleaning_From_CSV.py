@@ -1,12 +1,14 @@
 import pandas as pd
 import numpy as np
 
-def cleaning_csv_file(file_path):
-    data = pd.read_csv(file_path)
+file_path = "../CSV_Files/glucose_data.csv"
 
+def cleaning_csv_file():
+
+    data = pd.read_csv(file_path)
+    
     # If there are any columns with the column name containing unnamed then drop them.
     data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
-
     # Convert the glucose_time column to datetime format
     data['Glucose_time'] = pd.to_datetime(data['Glucose_time'], format='%Y-%m-%d %H:%M:%S')
 
@@ -16,7 +18,6 @@ def cleaning_csv_file(file_path):
     df = df.resample('5min').mean().interpolate(method='linear')
 
     # Reset the index of the df and save it to a new csv file
-    df = df.reset_index()
 
     # The file path is in the format "C:/Users/BMVSI-138/Desktop/Glucose_Prediction/glucose_data.csv"
     # Save the file to the same location with the name filename_resampled.csv
@@ -25,9 +26,7 @@ def cleaning_csv_file(file_path):
     file_path_resampled[-1] = file_path_resampled[-1].replace(".csv", "_resampled.csv")
     file_path_resampled = "/".join(file_path_resampled)
     
-    df.to_csv(file_path_resampled, index=False)
+    df.to_csv(file_path_resampled, index=True)
     return df
 
-# This function will take the file path as input and return the cleaned data
-data = cleaning_csv_file("C:/Users/BMVSI-138/Desktop/Glucose_Prediction/CSV_Files/glucose_data.csv")
-print(data.head())
+cleaning_csv_file()

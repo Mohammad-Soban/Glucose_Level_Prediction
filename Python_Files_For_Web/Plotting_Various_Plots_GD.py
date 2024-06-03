@@ -121,5 +121,3 @@ def plot_moving_averages(original, sma, ema, *args, **kwargs):
     plt.legend()
 
     plt.show()
-
-
