@@ -14,10 +14,9 @@ from Data_Cleaning_From_CSV import cleaning_csv_file
 from Plotting_Various_Plots_GD import plot_line_R_T, plot_scatter_R_T,  plot_6_lag_plots, plot_acf_df, plot_pacf_df, plot_hist_with_kde, compare_original_resampled, plot_moving_averages
 from sma_ema_es_models import Simple_Mov_Avg, Exp_Mov_Avg, Exp_Smoothing, calculate_rmse, predict_next_10_values_SMA, predict_next_10_values_EMA, predict_next_10_values_ESA
 from implement_arima import implement_arima_df, get_arima_rmse
-from implement_LSTM_Model import Find_Best_Params_On_Validation_data, get_previous_3_values_mean, prepare_data, actual_preds_validation, train_with_best_parameters, actual_preds_test, lstm_on_entire_dataset, find_best_params_test_data, preds_actual_264
+from implement_LSTM_Model import Find_Best_Params_On_Validation_data, get_previous_3_values_mean, prepare_data, actual_preds_validation, train_with_best_parameters, actual_preds_test, lstm_on_entire_dataset, find_best_params_test_data, preds_actual_264, final_results
 
-
-
+import time
 
 # Add a title as centered text
 st.title("Glucose Level Predcition")
@@ -148,9 +147,13 @@ if glucose_data is not None:
         # Display the predictions
         st.write(predictions)
 
-    elif option == "View Predictions using LSTM":
+    elif option == "View Predictions Using LSTM":
         st.title("Predictions using LSTM")
-        st.write("Model 1: Trained Data Prediction on 240 values of a single day")
         
+        valid_final_preds, test_final_preds = final_results()
 
+        st.write("Validation Data Predictions")
+        st.write(valid_final_preds)
 
+        st.write("Test Data Predictions")
+        st.write(test_final_preds)

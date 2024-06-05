@@ -5,10 +5,10 @@ from pmdarima import auto_arima
 from sklearn.metrics import mean_squared_error
 
 # Function to make the data compatible with ARIMA
-data = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
-print(data.columns)
+# print(data.columns)
 
 def implement_arima_df(period, start_p=0, start_q=0, max_p=5, max_q=5):
+  data = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
   model = auto_arima(data['reading'], start_p=start_p, start_q=start_q, max_p=max_p, max_q=max_q, seasonal=False, stepwise=True)
   predictions = model.predict(n_periods=period)
 
@@ -27,7 +27,3 @@ def get_arima_rmse(test_data, predictions):
     mse = mean_squared_error(test_data, predictions)
     rmse = np.sqrt(mse)
     return rmse
-
-# Get the predictions using ARIMA
-predictions_df = implement_arima_df(3)
-print(predictions_df)

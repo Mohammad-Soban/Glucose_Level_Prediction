@@ -18,8 +18,8 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 df['reading'] = scaler.fit_transform(df[['reading']])
 time_series_data = df['reading'].values
 
-n_features_lst = [3, 4, 5, 6, 8, 10, 15]
-patience_lst = [5, 10, 15, 20]
+n_features_lst = [5, 6, 8, 10, 12, 15, 20]
+patience_lst = [10, 15, 20, 25]
 
 
 def get_previous_3_values_mean(df, index):
@@ -46,6 +46,19 @@ def prepare_data(time_series_data, n_features):
 
 
 def Find_Best_Params_On_Validation_data():
+
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+    df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
+    df.set_index('Glucose_time', inplace=True)
+
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    df['reading'] = scaler.fit_transform(df[['reading']])
+    time_series_data = df['reading'].values
+
+    n_features_lst = [5, 6, 8, 10, 12, 15, 20]
+    patience_lst = [10, 15, 20, 25]
+
+
     best_parameter = {}
     best_rmse = float('inf')
     best_predictions = None
@@ -289,22 +302,36 @@ def preds_actual_264(validation_predictions, best_parameter):
 
 
 
-# Now finding the best parameters on the validation dataset
-best_parameter_validation, best_model_validation, validation_preds = Find_Best_Params_On_Validation_data()
 
-# Find the best parameters on the test data
-best_parameter_test, best_model_test, test_preds = find_best_params_test_data()
+def final_results():
 
-# Create a model on the entire dataset with the best validation dataset
-valid_final_preds, valid_model = lstm_on_entire_dataset(best_parameter_validation, 10)
+    # Check whether the files already exist or not
+    try:
+        valid_final_preds = pd.read_csv("../CSV_Files/valid_predictions.csv")
+        test_final_preds = pd.read_csv("../CSV_Files/test_predictions.csv")
 
-test_final_preds = lstm_on_entire_dataset(best_parameter_test, 10)
+        return valid_final_preds, test_final_preds
 
-# Saving the models into separate files for future use in a folder called Models
-valid_model.save("../Models/valid_model.h5")
-best_model_test.save("../Models/test_model.h5")
+    except:
+        # Now finding the best parameters on the validation dataset
+        best_parameter_validation, best_model_validation, validation_preds = Find_Best_Params_On_Validation_data()
 
-# Save the valid_predictions to valid_predictions.csv and test_predictions to test_predictions.csv
+        # Find the best parameters on the test data
+        best_parameter_test, best_model_test, test_preds = find_best_params_test_data()
 
-valid_final_preds.to_csv("../CSV_Files/valid_predictions.csv", index=False)
-test_final_preds.to_csv("../CSV_Files/test_predictions.csv", index=False)
+        # Create a model on the entire dataset with the best validation dataset
+        valid_final_preds, valid_model = lstm_on_entire_dataset(best_parameter_validation, 10)
+
+        test_final_preds = lstm_on_entire_dataset(best_parameter_test, 10)
+
+        # Saving the models into separate files for future use in a folder called Models
+        valid_model.save("../Models/valid_model.h5")
+        best_model_test.save("../Models/test_model.h5")
+
+        # Save the valid_predictions to valid_predictions.csv and test_predictions to test_predictions.csv
+
+        valid_final_preds.to_csv("../CSV_Files/valid_predictions.csv", index=False)
+        test_final_preds[0].to_csv("../CSV_Files/test_predictions.csv", index=False)
+
+    return valid_final_preds, test_final_preds[0]
+

@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
 
-file_path = "../CSV_Files/glucose_data.csv"
+
 
 def cleaning_csv_file():
-
+    file_path = "../CSV_Files/glucose_data.csv"
     data = pd.read_csv(file_path)
     
     # If there are any columns with the column name containing unnamed then drop them.
@@ -29,5 +29,3 @@ def cleaning_csv_file():
     # Saving the dataframe to the new csv file
     df.to_csv(file_path_resampled, index=True)
     return df
-
-cleaning_csv_file()

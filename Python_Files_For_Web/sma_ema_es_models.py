@@ -2,20 +2,21 @@ import numpy as np
 import pandas as pd
 
 
-df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
-evaluated_data = df.copy()
 
-def Simple_Mov_Avg():
+def Simple_Mov_Avg(evaluated_data):
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
     evaluated_data['SMA'] = df['reading'].rolling(window=3).mean().shift(1)
     return evaluated_data
 
 
-def Exp_Mov_Avg():
+def Exp_Mov_Avg(evaluated_data):
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
     evaluated_data['EMA'] = df['reading'].ewm(span=3, adjust=False, min_periods=0).mean().shift(1)
     return evaluated_data
 
 
-def Exp_Smoothing(alpha):
+def Exp_Smoothing(alpha, evaluated_data):
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
     evaluated_data[f'ESA_{alpha}'] = df['reading'].ewm(alpha=alpha, adjust=False, min_periods=0).mean().shift(1)
     return evaluated_data
 
@@ -25,6 +26,7 @@ def calculate_rmse(actual, predicted):
 
 
 def predict_next_10_values_SMA():
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
     lst = []
     lst.append(df['reading'].values[-3])
     lst.append(df['reading'].values[-2])
@@ -43,6 +45,7 @@ def predict_next_10_values_SMA():
     return lst[-10:]
 
 def predict_next_10_values_EMA():
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
     # Get the last 3 readings
     last_readings = df['reading'].values[-3:].tolist()
     
@@ -63,6 +66,8 @@ def predict_next_10_values_EMA():
     return ema_predictions[-10:]
 
 def predict_next_10_values_ESA(alpha):
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+
     # Get the last 3 readings
     last_readings = df['reading'].values[-3:].tolist()
     
