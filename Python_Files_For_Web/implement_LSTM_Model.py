@@ -342,8 +342,8 @@ def final_results():
 
     # Check whether the files already exist or not
     try:
-        valid_final_preds = pd.read_csv("../CSV_Files/valid_predictions.csv")
-        test_final_preds = pd.read_csv("../CSV_Files/test_predictions.csv")
+        valid_final_preds = pd.read_csv("../CSV_Files/valid_predictions_lstm.csv")
+        test_final_preds = pd.read_csv("../CSV_Files/test_predictions_lstm.csv")
 
         return valid_final_preds, test_final_preds
 
@@ -365,7 +365,7 @@ def final_results():
 
         # Save the valid_predictions to valid_predictions.csv and test_predictions to test_predictions.csv
 
-        valid_final_preds.to_csv("../CSV_Files/valid_predictions.csv", index=False)
-        test_final_preds[0].to_csv("../CSV_Files/test_predictions.csv", index=False)
+        valid_final_preds.to_csv("../CSV_Files/valid_predictions_lstm.csv", index=False)
+        test_final_preds[0].to_csv("../CSV_Files/test_predictions.csv_lstm", index=False)
 
     return valid_final_preds, test_final_preds[0]

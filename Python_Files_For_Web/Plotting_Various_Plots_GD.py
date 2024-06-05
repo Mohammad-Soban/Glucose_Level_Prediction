@@ -102,12 +102,14 @@ def compare_original_resampled(df, resampled_df):
 
 # To mark a parameter as optional, we can use args and kwargs. The args will be the optional parameters, and the required parameters will be passed as the normal parameters. The kwargs will be the optional parameters that are passed as key-value pairs.
 
-def plot_moving_averages(original, sma, ema, *args, **kwargs):
+def plot_moving_averages(original, sma, ema, arima_preds, validation_lstm_preds, test_lstm_preds, *args, **kwargs):
     '''Plotting the Moving Averages for the Glucose Reading data.'''
     plt.figure(figsize=(16, 8))
     sns.lineplot(x='Glucose_time', y='reading', data=original, color='blue', label='Original Data')
     sns.lineplot(x='Glucose_time', y='reading', data=sma, color='red', label='Simple Moving Average')
     sns.lineplot(x='Glucose_time', y='reading', data=ema, color='green', label='Exponential Moving Average')
+    sns.lineplot(x='Glucose_time', y='Predictions', data=arima_preds, color='purple', label='ARIMA Predictions')
+
 
     for key, value in kwargs.items():
         sns.lineplot(x='Glucose_time', y='reading', data=value, label=f'Exponential Smoothing Average with alpha value of {key}')

@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import warnings
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 import sys
 
@@ -39,7 +41,7 @@ if glucose_data is not None:
     # Add a sidebar with the following options
     st.sidebar.title("Options")
 
-    Options = ["View Original Data", "View Resampled Data", "View Prediction Data Using Simple Models", "View Predictions using ARIMA", "View Predictions Using LSTM", "View Plots of Resampled vs Original Data", "View Plots of Resampled Data", "View Plots of Prediction Data", "View RMSE Values"]
+    Options = ["View Original Data", "View Resampled Data", "View Prediction Data Using Simple Models", "View Predictions using ARIMA", "View Predictions Using LSTM", "View Plots of Resampled vs Original Data", "View Plots of Resampled Data", "View Plots of Prediction Data"]
 
     # Display the options in a list format
     option = st.sidebar.selectbox("Select an option", Options)
@@ -117,6 +119,9 @@ if glucose_data is not None:
         evaluated_data = Exp_Smoothing(0.3, evaluated_data)
         evaluated_data = Exp_Smoothing(0.5, evaluated_data)
         evaluated_data = Exp_Smoothing(0.7, evaluated_data)
+        
+        # Save the evaluated data to a csv file
+        evaluated_data.to_csv("../CSV_Files/moving_averages_predictions.csv", index=False)
 
         # Display the predictions
         st.write(evaluated_data)
@@ -140,12 +145,14 @@ if glucose_data is not None:
 
     elif option == "View Predictions using ARIMA":
         st.title("Predictions using ARIMA")
-        st.write("Enter the number of future values you want to predict")
 
-        period = st.number_input("Enter the number of future values you want to predict", min_value=1, max_value=21)
+        period = st.number_input("Enter the number of future values you want to predict", value=10, min_value=1, max_value=21, step=1)
         
         # Get the predictions using ARIMA
         predictions = implement_arima_df(period)
+
+        # save the predictions to a csv file
+        predictions.to_csv("../CSV_Files/arima_predictions.csv", index=False)
 
         # Display the predictions
         st.write(predictions)
@@ -160,3 +167,35 @@ if glucose_data is not None:
 
         st.write("Test Data Predictions")
         st.write(test_final_preds)
+
+    elif option == 'View Plots of Prediction Data':
+        try:
+            st.title("Plots of Prediction Data")
+
+            ma_df = pd.read_csv("../CSV_Files/moving_averages_predictions.csv")
+            arima_df = pd.read_csv("../CSV_Files/arima_predictions.csv")
+            validation_lstm_df = pd.read_csv("../CSV_Files/valid_predictions_lstm.csv")
+            test_lstm_df = pd.read_csv("../CSV_Files/test_predictions_lstm.csv")
+
+            plt.figure(figsize=(16, 8))
+            # sns.lineplot(x='Glucose_time', y='reading', data=df, color='blue', label='Original Data')
+            sns.lineplot(x='Glucose_time', y='SMA', data=ma_df, color='red', label='Simple Moving Average')
+            sns.lineplot(x='Glucose_time', y='EMA', data=ma_df, color='green', label='Exponential Moving Average')
+            sns.lineplot(x='Glucose_time', y='ESA_0.3', data=ma_df, color='purple', label='Exponential Smoothing Average with alpha 0.3')
+            sns.lineplot(x='Glucose_time', y='ESA_0.5', data=ma_df, color='yellow', label='Exponential Smoothing Average with alpha 0.5')
+            sns.lineplot(x='Glucose_time', y='ESA_0.7', data=ma_df, color='orange', label='Exponential Smoothing Average with alpha 0.7')
+            sns.lineplot(x='Glucose_time', y='reading', data=arima_df, color='black', label='ARIMA Predictions')
+            sns.lineplot(x='Glucose_time', y='Prediction', data=validation_lstm_df, color='pink', label='Validation LSTM Predictions')
+            sns.lineplot(x='Glucose_time', y='Prediction', data=test_lstm_df, color='brown', label='Test LSTM Predictions')
+
+            plt.xlabel('Time')
+            plt.ylabel('Glucose Reading')
+            plt.title('Predictions using Various Models')
+
+            st.set_option('deprecation.showPyplotGlobalUse', False)
+            st.pyplot()
+            
+
+        except Exception as e:
+            st.title("Please first view all the kinds of predictions to view the plots.")
+            st.write("Error:", e)
