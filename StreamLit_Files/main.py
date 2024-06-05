@@ -109,11 +109,14 @@ if glucose_data is not None:
     elif option == "View Prediction Data Using Simple Models":
         st.title("Prediction Data Using Simple Models")
         # Call all the models and get their predictions
-        evaluated_data = Simple_Mov_Avg()
-        evaluated_data = Exp_Mov_Avg()
-        evaluated_data = Exp_Smoothing(0.3)
-        evaluated_data = Exp_Smoothing(0.5)
-        evaluated_data = Exp_Smoothing(0.7)
+        df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+        evaluated_data = df.copy()
+
+        evaluated_data = Simple_Mov_Avg(evaluated_data)
+        evaluated_data = Exp_Mov_Avg(evaluated_data)
+        evaluated_data = Exp_Smoothing(0.3, evaluated_data)
+        evaluated_data = Exp_Smoothing(0.5, evaluated_data)
+        evaluated_data = Exp_Smoothing(0.7, evaluated_data)
 
         # Display the predictions
         st.write(evaluated_data)

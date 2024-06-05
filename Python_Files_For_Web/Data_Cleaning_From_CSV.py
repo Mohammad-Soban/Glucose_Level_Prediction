@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 
-
 def cleaning_csv_file():
     file_path = "../CSV_Files/glucose_data.csv"
     data = pd.read_csv(file_path)

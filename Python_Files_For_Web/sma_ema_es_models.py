@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 
 
-
 def Simple_Mov_Avg(evaluated_data):
     df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
     evaluated_data['SMA'] = df['reading'].rolling(window=3).mean().shift(1)

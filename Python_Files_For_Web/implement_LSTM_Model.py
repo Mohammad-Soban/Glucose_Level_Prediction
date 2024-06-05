@@ -10,17 +10,7 @@ from sklearn.metrics import mean_squared_error
 
 warnings.filterwarnings("ignore")
 
-df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
-df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
-df.set_index('Glucose_time', inplace=True)
-
 scaler = MinMaxScaler(feature_range=(0, 1))
-df['reading'] = scaler.fit_transform(df[['reading']])
-time_series_data = df['reading'].values
-
-n_features_lst = [5, 6, 8, 10, 12, 15, 20]
-patience_lst = [10, 15, 20, 25]
-
 
 def get_previous_3_values_mean(df, index):
     # Get the previous 3 values of the index
@@ -51,13 +41,11 @@ def Find_Best_Params_On_Validation_data():
     df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
     df.set_index('Glucose_time', inplace=True)
 
-    scaler = MinMaxScaler(feature_range=(0, 1))
     df['reading'] = scaler.fit_transform(df[['reading']])
     time_series_data = df['reading'].values
 
     n_features_lst = [5, 6, 8, 10, 12, 15, 20]
     patience_lst = [10, 15, 20, 25]
-
 
     best_parameter = {}
     best_rmse = float('inf')
@@ -137,6 +125,14 @@ def actual_preds_validation(validation_predictions):
 
 
 def train_with_best_parameters(best_parameter):
+
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+    df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
+    df.set_index('Glucose_time', inplace=True)
+
+    df['reading'] = scaler.fit_transform(df[['reading']])
+    time_series_data = df['reading'].values
+
     X, y = prepare_data(time_series_data, best_parameter['n_features'])
 
     X = X.reshape((X.shape[0], X.shape[1], 1))
@@ -168,6 +164,14 @@ def train_with_best_parameters(best_parameter):
 
 
 def actual_preds_test(final_preds, best_parameter):
+
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+    df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
+    df.set_index('Glucose_time', inplace=True)
+
+    df['reading'] = scaler.fit_transform(df[['reading']])
+    time_series_data = df['reading'].values
+
     last_value = final_preds[-1]
     xlst = final_preds[:]
 
@@ -191,6 +195,14 @@ def actual_preds_test(final_preds, best_parameter):
 
 
 def lstm_on_entire_dataset(best_parameter, future_number):
+    
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+    df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
+    df.set_index('Glucose_time', inplace=True)
+
+    df['reading'] = scaler.fit_transform(df[['reading']])
+    time_series_data = df['reading'].values
+    
     X, y = prepare_data(time_series_data, best_parameter['n_features'])
 
     X = X.reshape((X.shape[0], X.shape[1], 1))
@@ -228,6 +240,17 @@ def lstm_on_entire_dataset(best_parameter, future_number):
 
 
 def find_best_params_test_data():
+
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+    df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
+    df.set_index('Glucose_time', inplace=True)
+
+    df['reading'] = scaler.fit_transform(df[['reading']])
+    time_series_data = df['reading'].values
+
+    n_features_lst = [5, 6, 8, 10, 12, 15, 20]
+    patience_lst = [10, 15, 20, 25]
+
     best_parameter = {}
     best_rmse = float('inf')
     best_predictions = None
@@ -278,6 +301,18 @@ def find_best_params_test_data():
 
 
 def preds_actual_264(validation_predictions, best_parameter):
+
+    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+    df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
+    df.set_index('Glucose_time', inplace=True)
+
+    df['reading'] = scaler.fit_transform(df[['reading']])
+    time_series_data = df['reading'].values
+
+    n_features_lst = [5, 6, 8, 10, 12, 15, 20]
+    patience_lst = [10, 15, 20, 25]
+
+
     last_value = validation_predictions[-1]
     xlst = validation_predictions[:]
 
@@ -334,4 +369,3 @@ def final_results():
         test_final_preds[0].to_csv("../CSV_Files/test_predictions.csv", index=False)
 
     return valid_final_preds, test_final_preds[0]
-
