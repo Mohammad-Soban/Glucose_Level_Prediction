@@ -121,17 +121,14 @@ if glucose_data is not None:
         evaluated_data = Exp_Smoothing(0.7, evaluated_data)
         
         # Save the evaluated data to a csv file
-        evaluated_data.to_csv("../CSV_Files/moving_averages_predictions.csv", index=False)
+        # evaluated_data.to_csv("../CSV_Files/moving_averages_predictions.csv", index=False)
 
         # Display the predictions
-        st.write(evaluated_data)
+        
+        # st.write(evaluated_data)
 
-        # Also I want to predict the next 10 values using every model and append it in a new dataframe
-        # The new dataframe will have columns Glucose_time, Prediction using SMA, Prediction Using EMA, Prediction using ESA0.3, Prediction using ESA0.5, Prediction using ESA0.7.
-        # Note that the predictions will be for the next 10 values after the last value in the original data.
-        # Display this dataframe as well.
 
-        st.title("Next 10 Predictions using Simple Models")
+        st.write("Next 10 Predictions using Simple Models")
         next_10_predictions = pd.DataFrame()
         next_10_predictions['Glucose_time'] = pd.date_range(start=evaluated_data['Glucose_time'].iloc[-1], periods=10, freq='5min')
         
@@ -142,6 +139,23 @@ if glucose_data is not None:
         next_10_predictions['Prediction using ESA0.7'] = predict_next_10_values_ESA(0.7)
 
         st.dataframe(next_10_predictions)
+
+        # If any value of the predictions is > 126 then write "Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin.
+        if next_10_predictions['Prediction using SMA'].max() > 126 or next_10_predictions['Prediction using EMA'].max() > 126 or next_10_predictions['Prediction using ESA0.3'].max() > 126 or next_10_predictions['Prediction using ESA0.5'].max() > 126 or next_10_predictions['Prediction using ESA0.7'].max() > 126:
+            st.write("Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin.")
+
+        
+        # If any value of the predictions is < 60 then write "Your Glucose Level can go low in the next 1 hour. Please constantly monitor your glucose levels and if it goes lower than 60 then have some sugar."
+        if next_10_predictions['Prediction using SMA'].min() < 60 or next_10_predictions['Prediction using EMA'].min() < 60 or next_10_predictions['Prediction using ESA0.3'].min() < 60 or next_10_predictions['Prediction using ESA0.5'].min() < 60 or next_10_predictions['Prediction using ESA0.7'].min() < 60:
+            st.write("Your Glucose Level can go low in the next 1 hour. Please constantly monitor your glucose levels and if it goes lower than 60 then have some sugar.")
+
+        
+        # Case for normal glucose levels
+        if next_10_predictions['Prediction using SMA'].max() <= 126 and next_10_predictions['Prediction using EMA'].max() <= 126 and next_10_predictions['Prediction using ESA0.3'].max() <= 126 and next_10_predictions['Prediction using ESA0.5'].max() <= 126 and next_10_predictions['Prediction using ESA0.7'].max() <= 126 and next_10_predictions['Prediction using SMA'].min() >= 60 and next_10_predictions['Prediction using EMA'].min() >= 60 and next_10_predictions['Prediction using ESA0.3'].min() >= 60 and next_10_predictions['Prediction using ESA0.5'].min() >= 60 and next_10_predictions['Prediction using ESA0.7'].min() >= 60:
+            st.write("Your Glucose Levels are normal for the next 1 hour. Keep up the good work!")   
+
+        # Save this to a csv file
+        next_10_predictions.to_csv("../CSV_Files/moving_averages_predictions.csv", index=False)
 
     elif option == "View Predictions using ARIMA":
         st.title("Predictions using ARIMA")
@@ -157,6 +171,19 @@ if glucose_data is not None:
         # Display the predictions
         st.write(predictions)
 
+                # If the predictions are greater than 126 then write "Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin."
+        if predictions['reading'].max() > 126:
+            st.write("Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin in case it goes up.")
+
+        # If the predictions are less than 60 then write "Your Glucose Level can go low in the next 1 hour. Please constantly monitor your glucose levels and if it goes lower than 60 then have some sugar."
+        if predictions['reading'].min() < 60:
+            st.write("Your Glucose Level can go low in the next 1 hour. Please constantly monitor your glucose levels and if it goes lower than 60 then have some sugar.")
+
+        # Case for normal glucose levels
+        if predictions['reading'].max() <= 126 and predictions['reading'].min() >= 60:
+            st.write("Your Glucose Levels are normal for the next 1 hour. Keep up the good work!")
+
+
     elif option == "View Predictions Using LSTM":
         st.title("Predictions using LSTM")
         
@@ -167,6 +194,20 @@ if glucose_data is not None:
 
         st.write("Test Data Predictions")
         st.write(test_final_preds)
+
+        # If the predictions are greater than 126 then write "Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin."
+        if (valid_final_preds['Prediction'].max() + test_final_preds['Prediction'].max())/2 > 126:
+            st.write("Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin in case it goes up.")
+
+        # If the predictions are less than 60 then write "Your Glucose Level can go low in the next 1 hour. Please constantly monitor your glucose levels and if it goes lower than 60 then have some sugar."
+        if (valid_final_preds['Prediction'].min() + test_final_preds['Prediction'].min())/2 < 60:
+            st.write("Your Glucose Level can go low in the next 1 hour. Please constantly monitor your glucose levels and if it goes lower than 60 then have some sugar.")
+
+        # Case for normal glucose levels
+        if (valid_final_preds['Prediction'].max() + test_final_preds['Prediction'].max())/2 <= 126 and (valid_final_preds['Prediction'].min() + test_final_preds['Prediction'].min())/2 >= 60:
+            st.write("Your Glucose Levels are normal for the next 1 hour. Keep up the good work!")
+
+
 
     elif option == 'View Plots of Prediction Data':
         try:
@@ -179,11 +220,11 @@ if glucose_data is not None:
 
             plt.figure(figsize=(16, 8))
             # sns.lineplot(x='Glucose_time', y='reading', data=df, color='blue', label='Original Data')
-            sns.lineplot(x='Glucose_time', y='SMA', data=ma_df, color='red', label='Simple Moving Average')
-            sns.lineplot(x='Glucose_time', y='EMA', data=ma_df, color='green', label='Exponential Moving Average')
-            sns.lineplot(x='Glucose_time', y='ESA_0.3', data=ma_df, color='purple', label='Exponential Smoothing Average with alpha 0.3')
-            sns.lineplot(x='Glucose_time', y='ESA_0.5', data=ma_df, color='yellow', label='Exponential Smoothing Average with alpha 0.5')
-            sns.lineplot(x='Glucose_time', y='ESA_0.7', data=ma_df, color='orange', label='Exponential Smoothing Average with alpha 0.7')
+            sns.lineplot(x='Glucose_time', y='Prediction using SMA', data=ma_df, color='red', label='Simple Moving Average')
+            sns.lineplot(x='Glucose_time', y='Prediction using EMA', data=ma_df, color='green', label='Exponential Moving Average')
+            sns.lineplot(x='Glucose_time', y='Prediction using ESA0.3', data=ma_df, color='purple', label='Exponential Smoothing Average with alpha 0.3')
+            sns.lineplot(x='Glucose_time', y='Prediction using ESA0.5', data=ma_df, color='yellow', label='Exponential Smoothing Average with alpha 0.5')
+            sns.lineplot(x='Glucose_time', y='Prediction using ESA0.7', data=ma_df, color='orange', label='Exponential Smoothing Average with alpha 0.7')
             sns.lineplot(x='Glucose_time', y='reading', data=arima_df, color='black', label='ARIMA Predictions')
             sns.lineplot(x='Glucose_time', y='Prediction', data=validation_lstm_df, color='pink', label='Validation LSTM Predictions')
             sns.lineplot(x='Glucose_time', y='Prediction', data=test_lstm_df, color='brown', label='Test LSTM Predictions')
