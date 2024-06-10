@@ -336,8 +336,6 @@ def preds_actual_264(validation_predictions, best_parameter):
     return final
 
 
-
-
 def final_results():
 
     # Check whether the files already exist or not
@@ -350,9 +348,17 @@ def final_results():
     except:
         # Now finding the best parameters on the validation dataset
         best_parameter_validation, best_model_validation, validation_preds = Find_Best_Params_On_Validation_data()
+        
+        # Save the parameters to a file
+        best_parameter_validation_2 = pd.DataFrame(best_parameter_validation, index=[0])
+        best_parameter_validation_2.to_csv("../Models/best_parameters_lstm.csv", index=False) 
 
         # Find the best parameters on the test data
         best_parameter_test, best_model_test, test_preds = find_best_params_test_data()
+
+        # Save the parameters to a file
+        best_parameter_test_2 = pd.DataFrame(best_parameter_test, index=[0])
+        best_parameter_test_2.to_csv("../Models/best_parameters_test_lstm.csv", index=False)
 
         # Create a model on the entire dataset with the best validation dataset
         valid_final_preds, valid_model = lstm_on_entire_dataset(best_parameter_validation, 10)

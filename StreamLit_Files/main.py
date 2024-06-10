@@ -4,6 +4,7 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 import sys
 
@@ -11,6 +12,8 @@ warnings.filterwarnings("ignore")
 sys.path.append("../Python_Files_For_Web")
 
 from tensorflow.keras.models import load_model
+from keras.losses import mean_squared_error
+from sklearn.preprocessing import MinMaxScaler
 
 from Data_Cleaning_From_CSV import cleaning_csv_file
 from Plotting_Various_Plots_GD import plot_line_R_T, plot_scatter_R_T,  plot_6_lag_plots, plot_acf_df, plot_pacf_df, plot_hist_with_kde, compare_original_resampled, plot_moving_averages
@@ -20,21 +23,53 @@ from implement_LSTM_Model import Find_Best_Params_On_Validation_data, get_previo
 
 import time
 
+
+def is_70_percent_same(df1, df2):
+    # Ensure the 'readings' column is present in both dataframes
+    if 'reading' not in df1.columns or 'reading' not in df2.columns:
+        raise ValueError("Both dataframes must contain a 'readings' column")
+
+    # Extract the 'readings' columns
+    reading1 = df1['reading']
+    reading2 = df2['reading']
+    
+    # Align the data, filling missing values with NaN
+    reading1, reading2 = reading1.align(reading2, fill_value=np.nan)
+    
+    # Compare the values in the 'reading' columns
+    matches = reading1 == reading2
+    
+    # Calculate the percentage of matching values
+    total_values = matches.size
+    matching_values = matches.sum()
+    match_percentage = (matching_values / total_values) * 100
+    
+    # Return True if the match percentage is 70% or higher, otherwise False
+    return match_percentage >= 70
+
 # Add a title as centered text
 st.title("Glucose Level Predcition")
 
 # Add a button to upload a CSV File
 glucose_data = st.file_uploader("Upload a CSV file", type=["csv"])
 
-# Open this file using pandas and save it in a new csv file named glucose_data.csv
 if glucose_data is not None:
     data = pd.read_csv(glucose_data)
+
+try:
+    ck1 = pd.read_csv("../CSV_Files/glucose_data.csv")
+    print(ck1.head())
+
+except Exception as e:
+    print(e)
+
+# Open this file using pandas and save it in a new csv file named glucose_data.csv
+if data is not None:
     data.to_csv("../CSV_Files/glucose_data.csv", index=False)
     data['Glucose_time'] = pd.to_datetime(data['Glucose_time'])
 
     # Clean the csv file and get a resampled version of the data
     df = cleaning_csv_file()
-
 
 # If the file is uploaded then display the options sidebar to the user.
 if glucose_data is not None:
@@ -187,13 +222,111 @@ if glucose_data is not None:
     elif option == "View Predictions Using LSTM":
         st.title("Predictions using LSTM")
         
-        valid_final_preds, test_final_preds = final_results()
+        # Check if the data in ck1 is same as the data which is uploaded or not
+        if (ck1 == data).all().all():
+            print(" * " * 50)
+            st.write("The data is exactly the same as the previous data. So we will use the predictions saved in a CSV file before.")
+            # We will print the predictions from the csv_files
+            valid_final_preds, test_final_preds = final_results()
 
-        st.write("Validation Data Predictions")
-        st.write(valid_final_preds)
+            # Rename the columns Prediction_Valid and Prediction_Test to Prediction
+            valid_final_preds.rename(columns={'Prediction_Valid': 'Prediction'}, inplace=True)
+            test_final_preds.rename(columns={'Prediction_Test': 'Prediction'}, inplace=True)
 
-        st.write("Test Data Predictions")
-        st.write(test_final_preds)
+            st.write("Validation Data Predictions")
+            st.write(valid_final_preds)
+
+            st.write("Test Data Predictions")
+            st.write(test_final_preds)
+            
+
+        elif is_70_percent_same(ck1, data):
+            # Then we will use the models which are already trained and saved in the models folder
+            st.write("The data is 70 percent same as the previous data. So we will use the models which are already trained and saved in the models folder.")
+
+            test_model = load_model('../Models/test_model.h5', custom_objects={'mse': mean_squared_error})
+            valid_model = load_model('../Models/valid_model.h5', custom_objects={'mse': mean_squared_error})
+
+            df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+            df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
+            df.set_index('Glucose_time', inplace=True)
+
+            values = df['reading'].values.reshape(-1, 1)
+            scaler = MinMaxScaler(feature_range=(0, 1))
+            scaled_values = scaler.fit_transform(values)
+
+            best_params_valid = pd.read_csv("../Models/best_parameters_lstm.csv")
+            best_params_test = pd.read_csv("../Models/best_parameters_test_lstm.csv")
+
+            # n_features,patience
+
+            n_feat_valid = best_params_valid['n_features'].values[0]
+            n_feat_test = best_params_test['n_features'].values[0]
+
+            patience_valid = best_params_valid['patience'].values[0]
+            patience_test = best_params_test['patience'].values[0]
+
+            input_data = scaled_values[-n_feat_valid:].reshape((1, n_feat_valid, 1))
+            predictions_valid = []
+            for _ in range(10):
+                next_value = valid_model.predict(input_data)
+                predictions_valid.append(next_value[0, 0])
+                input_data = np.append(input_data[:, 1:, :], next_value).reshape((1, n_feat_valid, 1))
+
+            predictions_valid = scaler.inverse_transform(np.array(predictions_valid).reshape(-1, 1))
+            print(predictions_valid)
+
+            input_data = scaled_values[-n_feat_test:].reshape((1, n_feat_test, 1))
+            predictions_test = []
+            for _ in range(10):
+                next_value = test_model.predict(input_data)
+                predictions_test.append(next_value[0, 0])
+                input_data = np.append(input_data[:, 1:, :], next_value).reshape((1, n_feat_test, 1))
+            
+            predictions_test = scaler.inverse_transform(np.array(predictions_test).reshape(-1, 1))
+            print(predictions_test)
+
+            # Create a new Data Frame with the Future 10 values of Glucose Timeings and both the predictions appended to it as columns
+            next_10_predictions = pd.DataFrame()
+            next_10_predictions['Glucose_time'] = pd.date_range(start=df.index[-1], periods=10, freq='5min')
+            next_10_predictions['Prediction_Valid'] = predictions_valid
+            next_10_predictions['Prediction_Test'] = predictions_test
+
+            # Save the predictions separately for validation and test data
+            valid_final_preds = next_10_predictions[['Glucose_time', 'Prediction_Valid']]
+            test_final_preds = next_10_predictions[['Glucose_time', 'Prediction_Test']]
+
+            valid_final_preds.to_csv("../CSV_Files/valid_predictions_lstm.csv", index=False)
+            test_final_preds.to_csv("../CSV_Files/test_predictions_lstm.csv", index=False)
+
+            # Rename the columns Prediction_Valid and Prediction_Test to Prediction
+            valid_final_preds.rename(columns={'Prediction_Valid': 'Prediction'}, inplace=True)
+            test_final_preds.rename(columns={'Prediction_Test': 'Prediction'}, inplace=True)
+
+            st.write("Validation Data Predictions")
+            st.write(valid_final_preds)
+
+            st.write("Test Data Predictions")
+            st.write(test_final_preds)
+
+        # Else there are 2 conditions 1) There is no data in ck1 and 2) The data is completely different from the data in ck1.
+        else:
+            try:
+                # Delete the 2 files test_predictions_lstm.csv and valid_predictions_lstm.csv from the ../CSV_Files folder
+                os.remove("../CSV_Files/test_predictions_lstm.csv")
+                os.remove("../CSV_Files/valid_predictions_lstm.csv")
+
+            except Exception as e:
+                pass
+
+            finally:
+                valid_final_preds, test_final_preds = final_results()
+                st.write("Validation Data Predictions")
+                st.write(valid_final_preds)
+
+                st.write("Test Data Predictions")
+                st.write(test_final_preds)
+
 
         # If the predictions are greater than 126 then write "Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin."
         if (valid_final_preds['Prediction'].max() + test_final_preds['Prediction'].max())/2 > 126:
@@ -209,7 +342,7 @@ if glucose_data is not None:
 
 
 
-    elif option == 'View Plots of Prediction Data':
+    elif option == 'View Plots of Prediction Data': 
         try:
             st.title("Plots of Prediction Data")
 
