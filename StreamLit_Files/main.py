@@ -23,10 +23,7 @@ from implement_LSTM_Model import Find_Best_Params_On_Validation_data, get_previo
 
 import time
 
-<<<<<<< HEAD
 data = None
-=======
->>>>>>> 4f608ab1d87f7ddee53a1084a7681f3d0fa81f2b
 
 def is_70_percent_same(df1, df2):
     # Ensure the 'readings' column is present in both dataframes
