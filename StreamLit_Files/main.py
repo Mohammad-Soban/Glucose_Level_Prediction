@@ -18,8 +18,8 @@ from sklearn.preprocessing import MinMaxScaler
 from Data_Cleaning_From_CSV import cleaning_csv_file
 from Plotting_Various_Plots_GD import plot_line_R_T, plot_scatter_R_T,  plot_6_lag_plots, plot_acf_df, plot_pacf_df, plot_hist_with_kde, compare_original_resampled, plot_moving_averages
 from sma_ema_es_models import Simple_Mov_Avg, Exp_Mov_Avg, Exp_Smoothing, calculate_rmse, predict_next_10_values_SMA, predict_next_10_values_EMA, predict_next_10_values_ESA
-from implement_arima import implement_arima_df, get_arima_rmse
-from implement_LSTM_Model import Find_Best_Params_On_Validation_data, get_previous_3_values_mean, prepare_data, actual_preds_validation, train_with_best_parameters, actual_preds_test, lstm_on_entire_dataset, find_best_params_test_data, preds_actual_264, final_results
+from implement_arima import implement_arima_df, get_arima_rmse, get_test_preds
+from implement_LSTM_Model import final_results
 
 import time
 
@@ -59,7 +59,6 @@ if glucose_data is not None:
 
 try:
     ck1 = pd.read_csv("../CSV_Files/glucose_data.csv")
-    print(ck1.head())
 
 except Exception as e:
     print(e)
@@ -159,10 +158,13 @@ if glucose_data is not None:
         # Save the evaluated data to a csv file
         # evaluated_data.to_csv("../CSV_Files/moving_averages_predictions.csv", index=False)
 
-        # Display the predictions
-        
-        # st.write(evaluated_data)
+        # Display the test predictions that is the last 10 values of the predictions
+        st.write("Test Predictions using Simple Models")
+        test_df = evaluated_data.iloc[-10:]
+        st.write(test_df)
 
+
+        # st.write(evaluated_data)
 
         st.write("Next 10 Predictions using Simple Models")
         next_10_predictions = pd.DataFrame()
@@ -197,6 +199,22 @@ if glucose_data is not None:
         st.title("Predictions using ARIMA")
 
         period = st.number_input("Enter the number of future values you want to predict", value=10, min_value=1, max_value=21, step=1)
+
+        test_predictions = get_test_preds(period)
+        print(" * " * 50)
+        # print(test_predictions)
+
+        # print(" * " * 50)
+        
+        st.write("Test Predictions using ARIMA")
+        
+        random = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+        test_predictions_df = random[-period:]
+        test_predictions_df['Preds'] = test_predictions
+
+        # print(test_predictions_df)
+
+        st.dataframe(test_predictions_df)
         
         # Get the predictions using ARIMA
         predictions = implement_arima_df(period)
@@ -205,9 +223,10 @@ if glucose_data is not None:
         predictions.to_csv("../CSV_Files/arima_predictions.csv", index=False)
 
         # Display the predictions
+        
         st.write(predictions)
 
-                # If the predictions are greater than 126 then write "Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin."
+        # If the predictions are greater than 126 then write "Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin."
         if predictions['reading'].max() > 126:
             st.write("Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin in case it goes up.")
 

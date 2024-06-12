@@ -23,6 +23,18 @@ def implement_arima_df(period, start_p=0, start_q=0, max_p=5, max_q=5):
   return next_values
 
 
+def get_test_preds(period, start_p=0, start_q=0, max_p=5, max_q=5):
+    data = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
+
+    # Remove the last 10 elements from the data
+    x = data[:-(period)]
+    model = auto_arima(x['reading'], start_p=start_p, start_q=start_q, max_p=max_p, max_q=max_q, seasonal=False, stepwise=True)
+    predictions = model.predict(n_periods=period)
+
+    # print(predictions.values)
+
+    return predictions.values
+   
 def get_arima_rmse(test_data, predictions):
     mse = mean_squared_error(test_data, predictions)
     rmse = np.sqrt(mse)
