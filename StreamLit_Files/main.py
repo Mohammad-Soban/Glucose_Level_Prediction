@@ -19,12 +19,8 @@ from Data_Cleaning_From_CSV import cleaning_csv_file
 from Plotting_Various_Plots_GD import plot_line_R_T, plot_scatter_R_T,  plot_6_lag_plots, plot_acf_df, plot_pacf_df, plot_hist_with_kde, compare_original_resampled, plot_moving_averages
 from sma_ema_es_models import Simple_Mov_Avg, Exp_Mov_Avg, Exp_Smoothing, calculate_rmse, predict_next_10_values_SMA, predict_next_10_values_EMA, predict_next_10_values_ESA
 from implement_arima import implement_arima_df, get_arima_rmse, get_test_preds
-<<<<<<< HEAD
 from implement_LSTM_Model import final_results, find_df_test_validation_predictions
 from User_input_Predictions import preds_from_user_input
-=======
-from implement_LSTM_Model import final_results
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 
 import time
 
@@ -33,11 +29,7 @@ data = None
 def is_70_percent_same(df1, df2):
     # Ensure the 'readings' column is present in both dataframes
     if 'reading' not in df1.columns or 'reading' not in df2.columns:
-<<<<<<< HEAD
         raise ValueError("Both dataframes must contain a 'reading' column")
-=======
-        raise ValueError("Both dataframes must contain a 'readings' column")
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 
     # Extract the 'readings' columns
     reading1 = df1['reading']
@@ -60,17 +52,11 @@ def is_70_percent_same(df1, df2):
 # Add a title as centered text
 st.title("Glucose Level Predcition")
 
-<<<<<<< HEAD
 
 # Add a button to upload a CSV File
 glucose_data = st.file_uploader("Upload a CSV file", type=["csv"])
 
 
-=======
-# Add a button to upload a CSV File
-glucose_data = st.file_uploader("Upload a CSV file", type=["csv"])
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 if glucose_data is not None:
     data = pd.read_csv(glucose_data)
 
@@ -78,80 +64,52 @@ try:
     ck1 = pd.read_csv("../CSV_Files/glucose_data.csv")
 
 except Exception as e:
-<<<<<<< HEAD
     pass
 
-=======
-    print(e)
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 
 # Open this file using pandas and save it in a new csv file named glucose_data.csv
 if data is not None:
     data.to_csv("../CSV_Files/glucose_data.csv", index=False)
     data['Glucose_time'] = pd.to_datetime(data['Glucose_time'])
-<<<<<<< HEAD
     # Clean the csv file and get a resampled version of the data
     df = cleaning_csv_file()
 
 
-=======
-
-    # Clean the csv file and get a resampled version of the data
-    df = cleaning_csv_file()
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 # If the file is uploaded then display the options sidebar to the user.
 if glucose_data is not None:
     # Add a sidebar with the following options
     st.sidebar.title("Options")
 
-<<<<<<< HEAD
     Options = ["View Original Data", "View Resampled Data", "View Prediction Data Using Simple Models", "View Predictions using ARIMA", "View Predictions Using LSTM", "Get Predictions by Giving Data", "View Plots of Resampled vs Original Data", "View Plots of Resampled Data", "View Plots of Prediction Data", ]
-=======
-    Options = ["View Original Data", "View Resampled Data", "View Prediction Data Using Simple Models", "View Predictions using ARIMA", "View Predictions Using LSTM", "View Plots of Resampled vs Original Data", "View Plots of Resampled Data", "View Plots of Prediction Data"]
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 
     # Display the options in a list format
     option = st.sidebar.selectbox("Select an option", Options)
 
-<<<<<<< HEAD
     # Option 1
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     # If the user selects the option "View Original Data" then display the original data
     if option == "View Original Data":
         st.title("Original Data")
         st.write(data)
 
-<<<<<<< HEAD
 
     # Option 2    
-=======
-    
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     # If the user selects the option "View Resampled Data" then display the resampled data
     elif option == "View Resampled Data":
         st.title("Resampled Data")
         st.write(df)
 
     
-<<<<<<< HEAD
     # Option 3
     # If the user selects the option "View Plots of Resampled vs Original Data" then display the plots of the resampled data and the original data
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     elif option == 'View Plots of Resampled vs Original Data':
         st.title("Plots of Resampled vs Original Data")
         compare_original_resampled(data, df)
         st.set_option('deprecation.showPyplotGlobalUse', False)
         st.pyplot()
 
-<<<<<<< HEAD
 
     # Option 4
     # If the user selects the option "View Plots of Resampled Data" then display the plots of the resampled data
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     elif option == "View Plots of Resampled Data":
         # Give Options to the user to select the type of plot they want to see
         st.title("Plots of Resampled Data")
@@ -196,12 +154,9 @@ if glucose_data is not None:
             st.set_option('deprecation.showPyplotGlobalUse', False)
             st.pyplot()
 
-<<<<<<< HEAD
 
     # Option 5
     # If the user selects the option "View Prediction Data Using Simple Models" then display the predictions using Simple Models such as SMA, EMA and ESA.
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     elif option == "View Prediction Data Using Simple Models":
         st.title("Prediction Data Using Simple Models")
         # Call all the models and get their predictions
@@ -254,30 +209,17 @@ if glucose_data is not None:
         # Save this to a csv file
         next_10_predictions.to_csv("../CSV_Files/moving_averages_predictions.csv", index=False)
 
-<<<<<<< HEAD
 
     # Option 6
     # If the user selects the option "View Predictions using ARIMA" then display the predictions using ARIMA
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     elif option == "View Predictions using ARIMA":
         st.title("Predictions using ARIMA")
 
         period = st.number_input("Enter the number of future values you want to predict", value=10, min_value=1, max_value=21, step=1)
 
         test_predictions = get_test_preds(period)
-<<<<<<< HEAD
         
         st.write("Test Predictions using ARIMA")
-=======
-        print(" * " * 50)
-        # print(test_predictions)
-
-        # print(" * " * 50)
-        
-        st.write("Test Predictions using ARIMA")
-        
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
         random = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
         test_predictions_df = random[-period:]
         test_predictions_df['Preds'] = test_predictions
@@ -309,32 +251,20 @@ if glucose_data is not None:
             st.write("Your Glucose Levels are normal for the next 1 hour. Keep up the good work!")
 
 
-<<<<<<< HEAD
     # Option 7
     # If the user selects the option "View Predictions Using LSTM" then display the predictions using LSTM
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     elif option == "View Predictions Using LSTM":
         st.title("Predictions using LSTM")
         
         # Check if the data in ck1 is same as the data which is uploaded or not
-<<<<<<< HEAD
         if (ck1 == data).all().all():            
             # We will print the predictions from the csv_files
             valid_final_preds, test_final_preds, valid_check_preds, test_check_preds, valid_rmse, test_rmse = final_results()
-=======
-        if (ck1 == data).all().all():
-            print(" * " * 50)
-            st.write("The data is exactly the same as the previous data. So we will use the predictions saved in a CSV file before.")
-            # We will print the predictions from the csv_files
-            valid_final_preds, test_final_preds = final_results()
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 
             # Rename the columns Prediction_Valid and Prediction_Test to Prediction
             valid_final_preds.rename(columns={'Prediction_Valid': 'Prediction'}, inplace=True)
             test_final_preds.rename(columns={'Prediction_Test': 'Prediction'}, inplace=True)
 
-<<<<<<< HEAD
             st.write("Last Some Values Predicted By Validation Model")
             st.write(valid_check_preds)
 
@@ -355,19 +285,6 @@ if glucose_data is not None:
 
         elif is_70_percent_same(ck1, data):
             
-=======
-            st.write("Validation Data Predictions")
-            st.write(valid_final_preds)
-
-            st.write("Test Data Predictions")
-            st.write(test_final_preds)
-            
-
-        elif is_70_percent_same(ck1, data):
-            # Then we will use the models which are already trained and saved in the models folder
-            st.write("The data is 70 percent same as the previous data. So we will use the models which are already trained and saved in the models folder.")
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
             test_model = load_model('../Models/test_model.h5', custom_objects={'mse': mean_squared_error})
             valid_model = load_model('../Models/valid_model.h5', custom_objects={'mse': mean_squared_error})
 
@@ -390,7 +307,6 @@ if glucose_data is not None:
             patience_valid = best_params_valid['patience'].values[0]
             patience_test = best_params_test['patience'].values[0]
 
-<<<<<<< HEAD
             # Get the predictions for the last 10 values of the validation and test data
             df_validation, df_test, valid_rmse, test_rmse = find_df_test_validation_predictions(n_feat_valid, n_feat_test, patience_valid, patience_test, valid_model, test_model, scaler, scaled_values)
 
@@ -401,8 +317,6 @@ if glucose_data is not None:
             st.write(df_test)
 
 
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
             input_data = scaled_values[-n_feat_valid:].reshape((1, n_feat_valid, 1))
             predictions_valid = []
             for _ in range(10):
@@ -446,14 +360,11 @@ if glucose_data is not None:
             st.write("Test Data Predictions")
             st.write(test_final_preds)
 
-<<<<<<< HEAD
             # Write this with big font size
             st.write("Getting the RMSE Values Ready For You")
             st.write("RMSE Value for Validation Data:", valid_rmse)
             st.write("RMSE Value for Test Data:", test_rmse)    
         
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
         # Else there are 2 conditions 1) There is no data in ck1 and 2) The data is completely different from the data in ck1.
         else:
             try:
@@ -465,7 +376,6 @@ if glucose_data is not None:
                 pass
 
             finally:
-<<<<<<< HEAD
                 valid_final_preds, test_final_preds, valid_check_preds, test_check_preds, valid_rmse, test_rmse = final_results()
 
                 st.write("Last Some Values Predicted By Validation Model")
@@ -485,15 +395,6 @@ if glucose_data is not None:
                 st.write("RMSE Value for Validation Data:", valid_rmse)
                 st.write("RMSE Value for Test Data:", test_rmse)
 
-=======
-                valid_final_preds, test_final_preds = final_results()
-                st.write("Validation Data Predictions")
-                st.write(valid_final_preds)
-
-                st.write("Test Data Predictions")
-                st.write(test_final_preds)
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 
         # If the predictions are greater than 126 then write "Your Glucose Level can go high in the next 1 hour. Please visit a doctor to have insulin."
         if (valid_final_preds['Prediction'].max() + test_final_preds['Prediction'].max())/2 > 126:
@@ -508,7 +409,6 @@ if glucose_data is not None:
             st.write("Your Glucose Levels are normal for the next 1 hour. Keep up the good work!")
 
 
-<<<<<<< HEAD
     elif option == "Get Predictions by Giving Data":
         num_values = st.number_input("Enter the number of values you have", min_value=1, max_value=20, step=1)
         
@@ -537,8 +437,6 @@ if glucose_data is not None:
             # Hide the Traceback error
             text = e.with_traceback(None)
             st.write(text)
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 
     elif option == 'View Plots of Prediction Data': 
         try:
