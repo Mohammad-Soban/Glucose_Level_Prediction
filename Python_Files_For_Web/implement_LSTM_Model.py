@@ -11,22 +11,6 @@ from sklearn.metrics import mean_squared_error
 warnings.filterwarnings("ignore")
 scaler = MinMaxScaler(feature_range=(0, 1))
 
-<<<<<<< HEAD
-=======
-
-
-def get_previous_3_values_mean(df, index):
-    # Get the previous 3 values of the index
-    previous_3_values = df.iloc[index-3:index]
-
-    # Inverse transform the values
-    previous_3_values = scaler.inverse_transform(previous_3_values)
-
-    # Take the mean of the previous 3 values
-    return np.mean(previous_3_values)
-
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 def prepare_data(time_series_data, n_features):
     X, y = [], []
     for i in range(len(time_series_data)):
@@ -48,11 +32,7 @@ def Find_Best_Params_On_Validation_data():
     df['reading'] = scaler.fit_transform(df[['reading']])
     time_series_data = df['reading'].values
 
-<<<<<<< HEAD
     n_features_lst = [4, 5, 6, 8, 10, 15, 18]
-=======
-    n_features_lst = [2, 4, 6, 8, 10, 15]
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     patience_lst = [10, 15, 20, 25]
 
     best_parameter = {}
@@ -110,10 +90,6 @@ def Find_Best_Params_On_Validation_data():
     return best_parameter, best_model, validation_predictions
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 def find_best_params_test_data():
 
     df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
@@ -123,11 +99,7 @@ def find_best_params_test_data():
     df['reading'] = scaler.fit_transform(df[['reading']])
     time_series_data = df['reading'].values
 
-<<<<<<< HEAD
     n_features_lst = [4, 5, 6, 8, 10, 15, 18]
-=======
-    n_features_lst = [2, 4, 6, 8, 10, 15]
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     patience_lst = [10, 15, 20, 25]
 
     best_parameter = {}
@@ -184,10 +156,6 @@ def train_with_best_parameters(best_parameter):
     This function will train the model on the entire dataset with the best parameters found on the validation dataset and the test dataset.
     """
 
-<<<<<<< HEAD
-=======
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
     df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
     df['Glucose_time'] = pd.to_datetime(df['Glucose_time'])
     df.set_index('Glucose_time', inplace=True)
@@ -225,10 +193,6 @@ def train_with_best_parameters(best_parameter):
     return final_preds, rmse, model
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 def lstm_on_entire_dataset(best_parameter, future_number):
     """
     This function will train the model on the entire dataset and predict the future values for the next 10 values
@@ -276,7 +240,6 @@ def lstm_on_entire_dataset(best_parameter, future_number):
     return future_df, model
 
 
-<<<<<<< HEAD
 def find_df_test_validation_predictions(best_param_validation, best_param_test):
     """
     This function will test the test predictions with the actual values and store that in a dataframe
@@ -309,15 +272,12 @@ def find_df_test_validation_predictions(best_param_validation, best_param_test):
     return df_validation, df_test, valid_rmse, test_rmse
 
 
-=======
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 def final_results():
 
     # Check whether the files already exist or not
     try:
         valid_final_preds = pd.read_csv("../CSV_Files/valid_predictions_lstm.csv")
         test_final_preds = pd.read_csv("../CSV_Files/test_predictions_lstm.csv")
-<<<<<<< HEAD
         valid_check_preds = pd.read_csv("../CSV_Files/valid_check_predictions.csv")
         test_check_preds = pd.read_csv("../CSV_Files/test_check_predictions.csv")
 
@@ -328,10 +288,6 @@ def final_results():
         test_check = test_check_preds[['Actual', 'Predictions']]
 
         return valid_final_preds, test_final_preds, valid_check, test_check, valid_rmse, test_rmse
-=======
-
-        return valid_final_preds, test_final_preds
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
 
     except:
         # Now finding the best parameters on the validation dataset
@@ -348,7 +304,6 @@ def final_results():
         best_parameter_test_2 = pd.DataFrame(best_parameter_test, index=[0])
         best_parameter_test_2.to_csv("../Models/best_parameters_test_lstm.csv", index=False)
 
-<<<<<<< HEAD
 
         # Testing the validation model and test model on some last values of the dataset
         valid_check_preds, test_check_preds, valid_rmse, test_rmse = find_df_test_validation_predictions(best_parameter_validation, best_parameter_test)
@@ -364,11 +319,6 @@ def final_results():
 
         # Create a model on the entire dataset with the best validation dataset
         valid_final_preds, valid_model = lstm_on_entire_dataset(best_parameter_validation, 10)
-=======
-        # Create a model on the entire dataset with the best validation dataset
-        valid_final_preds, valid_model = lstm_on_entire_dataset(best_parameter_validation, 10)
-
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
         test_final_preds = lstm_on_entire_dataset(best_parameter_test, 10)
 
         # Saving the models into separate files for future use in a folder called Models
@@ -380,24 +330,4 @@ def final_results():
         valid_final_preds.to_csv("../CSV_Files/valid_predictions_lstm.csv", index=False)
         test_final_preds[0].to_csv("../CSV_Files/test_predictions_lstm.csv", index=False)
 
-<<<<<<< HEAD
     return valid_final_preds, test_final_preds[0], valid_check_preds, test_check_preds, valid_rmse, test_rmse
-=======
-    return valid_final_preds, test_final_preds[0]
-
-
-
-def find_df_test_validation_predictions(best_param_validation, best_param_test):
-    """
-    This function will test the test predictions with the actual values and store that in a dataframe
-    And also the same for the validation predictions
-    """
-
-    df = pd.read_csv("../CSV_Files/glucose_data_resampled.csv")
-    df.set_index('Glucose_time', inplace=True)
-
-    # Training with the best parameters on the validation data
-    validation_preds, rmse, model = train_with_best_parameters(best_param_validation)
-
-    # Now we will find the actual values and the predictions for the validation data 
->>>>>>> b39b7ab9e1c9559e13f782a8931050ab6756387c
