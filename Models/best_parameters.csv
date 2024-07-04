@@ -1,0 +1,4 @@
+n_features,dropout_rate,batch_size,patience
+20,0.2,32,25
+3,0.2,32,25
+18,0.2,16,25

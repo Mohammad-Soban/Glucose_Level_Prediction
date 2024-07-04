@@ -257,7 +257,7 @@ if glucose_data is not None:
         st.title("Predictions using LSTM")
         
         # Check if the data in ck1 is same as the data which is uploaded or not
-        if (ck1 == data).all().all():            
+        if (ck1 == data).all().all():           
             # We will print the predictions from the csv_files
             valid_final_preds, test_final_preds, valid_check_preds, test_check_preds, valid_rmse, test_rmse = final_results()
 
